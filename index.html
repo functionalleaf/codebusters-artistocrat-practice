@@ -3,25 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <title>Cryptogram Solver</title>
-<style>
-body{font-family:Arial;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;padding:20px}
-textarea{width:100%;height:150px}
-table{border-collapse:collapse;width:100%}
-table,th,td{border:1px solid black}
-th,td{padding:5px;text-align:center}
-.replacement-inputs{display:grid;grid-template-columns:repeat(13,1fr);gap:5px}
-.replacement-input{text-align:center;width:100%}
-.output{background:#f9f9f9;padding:10px;border:1px solid black;white-space:pre-wrap}
-button{margin:5px 0}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div>
 <h2>Input Ciphertext</h2>
 <textarea id="ciphertext"></textarea>
-<button onclick="generateCipher()">Generate Random Cipher</button>
-<button onclick="showAnswer()">Show Answer</button>
+<button class="big-button" onclick="generateCipher()">Generate Random Cipher</button>
+<button class="big-button" onclick="checkAnswer()">Check Answer</button>
+<button class="big-button" onclick="showAnswer()">Show Answer</button>
 <div id="freqAnalysis"></div>
 </div>
 
@@ -29,7 +20,9 @@ button{margin:5px 0}
 <h2>Replace Letters</h2>
 <div class="replacement-inputs" id="replacementInputs"></div>
 <table>
-<thead><tr><th>Letter</th><th>English</th><th>Spanish</th></tr></thead>
+<thead>
+<tr><th>Letter</th><th>English</th><th>Spanish</th></tr>
+</thead>
 <tbody id="freqComparison"></tbody>
 </table>
 </div>
@@ -39,102 +32,6 @@ button{margin:5px 0}
 <div class="output" id="decodedMessage"></div>
 </div>
 
-<script>
-const englishFreq={'E':12.51,'T':9.25,'A':8.04,'O':7.60,'I':7.26,'N':7.09,'S':6.54,'R':6.12,'H':5.49,'L':4.14,'D':3.99,'C':3.06,'M':2.53,'F':2.30,'P':2.00,'G':1.96,'W':1.92,'Y':1.73,'B':1.54,'V':0.99,'K':0.67,'X':0.19,'J':0.16,'Q':0.11,'Z':0.09,'U':2.71}
-const spanishFreq={'E':14.08,'A':12.16,'O':9.20,'S':7.20,'N':6.83,'R':6.41,'I':5.98,'L':5.24,'U':4.69,'D':4.67,'T':4.60,'C':3.87,'M':3.08,'P':2.89,'B':1.49,'H':1.18,'Q':1.11,'V':1.05,'G':1.00,'Y':1.09,'F':0.69,'J':0.52,'Z':0.47,'Ñ':0.17,'X':0.14,'K':0.11,'W':0.04}
-
-let substitutions={}
-let answerMap={}
-let quotes=[]
-
-for(let i=65;i<=90;i++)substitutions[String.fromCharCode(i)]=''
-substitutions['Ñ']=''
-
-fetch('quotes.tsv')
-.then(r=>r.text())
-.then(t=>{
-const lines=t.trim().split('\n')
-const headers=lines.shift().split('\t')
-const qi=headers.indexOf('Quote Text')
-lines.forEach(l=>{
-const c=l.split('\t')
-if(c[qi])quotes.push(c[qi])
-})
-})
-
-const replacementInputs=document.getElementById('replacementInputs')
-for(let i=65;i<=90;i++){
-const l=String.fromCharCode(i)
-replacementInputs.innerHTML+=`<div><label>${l}</label><input class="replacement-input" maxlength="1" data-letter="${l}"></div>`
-}
-replacementInputs.innerHTML+=`<div><label>Ñ</label><input class="replacement-input" maxlength="1" data-letter="Ñ"></div>`
-
-document.querySelectorAll('.replacement-input').forEach(i=>{
-i.addEventListener('input',e=>{
-substitutions[e.target.dataset.letter]=e.target.value.toUpperCase()
-updateMessage()
-})
-})
-
-function calculateFrequency(text){
-const freq={}
-text=text.toUpperCase().replace(/[^A-ZÑ]/g,'')
-for(let i=65;i<=90;i++)freq[String.fromCharCode(i)]=0
-freq['Ñ']=0
-for(const c of text)freq[c]++
-let h='<table><tr><th>Letter</th><th>%</th></tr>'
-for(const k in freq)h+=`<tr><td>${k}</td><td>${text.length?((freq[k]/text.length)*100).toFixed(2):0}</td></tr>`
-return h+'</table>'
-}
-
-function updateMessage(){
-const text=document.getElementById('ciphertext').value
-let out=''
-for(const c of text){
-const u=c.toUpperCase()
-out+=substitutions[u]?substitutions[u]:c
-}
-document.getElementById('decodedMessage').innerText=out
-document.getElementById('freqAnalysis').innerHTML=calculateFrequency(text)
-}
-
-function randomSubstitution(){
-const a='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-const b=[...a].sort(()=>Math.random()-0.5)
-const m={}
-a.forEach((l,i)=>m[l]=b[i])
-return m
-}
-
-function generateCipher(){
-if(!quotes.length)return
-const quote=quotes[Math.floor(Math.random()*quotes.length)].toUpperCase()
-answerMap=randomSubstitution()
-let c=''
-for(const ch of quote)c+=/[A-Z]/.test(ch)?answerMap[ch]:ch
-document.getElementById('ciphertext').value=c
-for(const k in substitutions)substitutions[k]=''
-document.querySelectorAll('.replacement-input').forEach(i=>i.value='')
-updateMessage()
-}
-
-function showAnswer(){
-for(const k in answerMap){
-substitutions[answerMap[k]]=k
-const i=document.querySelector(`[data-letter="${answerMap[k]}"]`)
-if(i)i.value=k
-}
-updateMessage()
-}
-
-const freqComparison=document.getElementById('freqComparison')
-for(let i=65;i<=90;i++){
-const l=String.fromCharCode(i)
-freqComparison.innerHTML+=`<tr><td>${l}</td><td>${englishFreq[l]||'-'}</td><td>${spanishFreq[l]||'-'}</td></tr>`
-}
-freqComparison.innerHTML+=`<tr><td>Ñ</td><td>-</td><td>${spanishFreq['Ñ']}</td></tr>`
-
-document.getElementById('ciphertext').addEventListener('input',updateMessage)
-</script>
+<script src="index.js"></script>
 </body>
 </html>
