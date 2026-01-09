@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptogram Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+
+        .freq-container {
+            margin-top: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: center;
+        }
+
+        .replacement-inputs {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .replacement-input {
+            text-align: center;
+            width: 100%;
+        }
+
+        .output {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid black;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Input Textarea -->
+    <div>
+        <h2>Input Ciphertext</h2>
+        <textarea id="ciphertext" placeholder="Enter the ciphertext..."></textarea>
+
+        <div class="freq-container">
+            <h3>Frequency Analysis</h3>
+            <div id="freqAnalysis"></div>
+        </div>
+    </div>
+
+    <!-- Letter Substitution Inputs -->
+    <div>
+        <h2>Replace Letters</h2>
+        <div class="replacement-inputs" id="replacementInputs"></div>
+
+        <div class="freq-container">
+            <h3>English and Spanish Letter Frequencies</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Letter</th>
+                        <th>English</th>
+                        <th>Spanish</th>
+                    </tr>
+                </thead>
+                <tbody id="freqComparison"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Decoded Output -->
+    <div>
+        <h2>Decoded Message</h2>
+        <div class="output" id="decodedMessage"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="index.js"></script>
+
+</body>
+</html>
