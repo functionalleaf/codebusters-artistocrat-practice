@@ -62,11 +62,11 @@ const c=text[i],u=c.toUpperCase()
 if(substitutions[u]){
 let cls='blue'
 if(markWrong && lastQuote){
-  const p = lastQuote[i]?.toUpperCase()
-  if(p){
-    if(substitutions[u] === p) cls = 'green'
-    else cls = 'red'
-  }
+const p=lastQuote[i]?.toUpperCase()
+if(p){
+if(substitutions[u]===p)cls='green'
+else cls='red'
+}
 }
 out+=`<span class="${cls}">${substitutions[u]}</span>`
 }else out+=c
